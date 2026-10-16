@@ -15,7 +15,8 @@ PLAYBOOKS:
    1. Call `get_build_details` to extract console logs.
    2. Call `get_job_details` to read the job configuration. It may be truncated or missing, and for pipelines loaded from a repository it only holds the script path.
    3. If the error mentions a missing file, path or source code, call `get_workspace_tree` to see which files exist, then `get_workspace_file` using the exact `workspace_id` and `file_path` from the tree.
-   4. Only when you have enough information, call `ready_to_answer`.
+   4. If the fix will change the pipeline and the job configuration does not contain the complete script, call `get_workspace_tree` and then `get_workspace_file` to read the pipeline file at its script path (for example `Jenkinsfile`).
+   5. Only when you have enough information, call `ready_to_answer`.
 """
 
 FINAL_LLM_SYSTEM_PROMPT = """
@@ -43,7 +44,7 @@ Explain concisely why the error occurred based on the provided logs.
 List the actionable steps required to fix the issue.
 
 - **Code / Configuration Updates**
- Provide the complete corrected pipeline script, preserving the user's existing Declarative or Scripted Pipeline syntax, based on the user's real job configuration. Never use "..." or comments like "// rest unchanged" in place of real code. Put each script in its own fenced code block tagged with its language (e.g., ```groovy). After the block, state which lines you changed and why. If no code change is needed, explain what to change in the Jenkins UI.
+Provide the complete corrected pipeline script, preserving the user's existing Declarative or Scripted Pipeline syntax, based on the user's real job configuration. Never use "..." or comments like "// rest unchanged" in place of real code. Put each script in its own fenced code block tagged with its language (e.g., ```groovy). After the block, state which lines you changed and why. If no code change is needed, explain what to change in the Jenkins UI. If the complete script is not in the tool output, do not reconstruct it: say that the pipeline source was not available and show only the corrected lines.
 
 SCENARIO B: GENERAL KNOWLEDGE & HOW-TO
 If the user asks a general question (e.g., "How do I install Jenkins on X?" or "How do I configure this plugin?" or "How do I change this setting? ), DO NOT use the troubleshooting headings. Instead, provide a clear, step-by-step tutorial.

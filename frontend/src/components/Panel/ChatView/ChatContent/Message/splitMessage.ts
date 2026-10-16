@@ -5,7 +5,20 @@ export interface MessagePiece {
 }
 
 const CODE_FENCE =
-  /^[^\S\r\n]*```([^\s`]*)[^\S\r\n]*\r?\n([\s\S]*?)(?:^[^\S\r\n]*```[^\S\r\n]*$|(?![\s\S]))/gm;
+  /^([^\S\r\n]*)```([^\s`]*)[^\S\r\n]*\r?\n([\s\S]*?)(?:^[^\S\r\n]*```[^\S\r\n]*$|(?![\s\S]))/gm;
+
+function stripIndent(code: string, width: number): string {
+  return code
+    .split("\n")
+    .map((line) => {
+      let cut = 0;
+      while (cut < width && (line[cut] === " " || line[cut] === "\t")) {
+        cut++;
+      }
+      return line.slice(cut);
+    })
+    .join("\n");
+}
 
 export function splitMessage(text: string): MessagePiece[] {
   const pieces: MessagePiece[] = [];
@@ -19,14 +32,15 @@ export function splitMessage(text: string): MessagePiece[] {
   };
 
   for (const match of text.matchAll(CODE_FENCE)) {
+    const [block, indent, language, body] = match;
     const start = match.index ?? 0;
     pushText(text.slice(lastIndex, start));
     pieces.push({
       kind: "code",
-      content: match[2].trimEnd(),
-      language: match[1],
+      content: stripIndent(body, indent.length).trimEnd(),
+      language,
     });
-    lastIndex = start + match[0].length;
+    lastIndex = start + block.length;
   }
 
   pushText(text.slice(lastIndex));
