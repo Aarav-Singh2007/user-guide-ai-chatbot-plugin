@@ -4,7 +4,8 @@ export interface MessagePiece {
   language?: string;
 }
 
-const CODE_FENCE = /```([^\s`]*)[^\S\r\n]*\r?\n([\s\S]*?)(```|$)/g;
+const CODE_FENCE =
+  /^[^\S\r\n]*```([^\s`]*)[^\S\r\n]*\r?\n([\s\S]*?)(?:^[^\S\r\n]*```[^\S\r\n]*$|(?![\s\S]))/gm;
 
 export function splitMessage(text: string): MessagePiece[] {
   const pieces: MessagePiece[] = [];
