@@ -26,7 +26,7 @@ The trailing slash in `VITE_DEV_API_URL` is required because the app appends req
 
 Install the dependencies and start the development server:
 
-```sh
+```shell
 cd ../frontend
 npm install
 npm run dev
