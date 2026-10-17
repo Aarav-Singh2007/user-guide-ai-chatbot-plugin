@@ -6,7 +6,7 @@ Inside Jenkins, the UI doesn't call the backend directly. Every request goes thr
 
 ## Local development
 
-Prerequisites: _Node.js_ (`^20.19.0 || >=22.12.0`) and a backend running on `http://localhost:8000` (see the [Development Guide](https://jenkinsci.github.io/user-guide-ai-chatbot-plugin/developer-docs/developing.html)).
+Prerequisites: _Node.js_ (`^20.19.0 || ^22.13.0 || >=24`) and a backend running on `http://localhost:8000` (see the [Development Guide](https://jenkinsci.github.io/user-guide-ai-chatbot-plugin/developer-docs/developing.html)).
 
 The backend only accepts requests that carry a JWT signed with its `JWT_SECRET_KEY`. To generate one for development, run this from the repository root:
 
