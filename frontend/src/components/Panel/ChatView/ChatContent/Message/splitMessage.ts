@@ -4,45 +4,103 @@ export interface MessagePiece {
   language?: string;
 }
 
-const CODE_FENCE =
-  /^([^\S\r\n]*)```([^\s`]*)[^\S\r\n]*\r?\n([\s\S]*?)(?:^[^\S\r\n]*```[^\S\r\n]*$|(?![\s\S]))/gm;
+interface OpenFence {
+  marker: string;
+  indent: number;
+  language: string;
+  lines: string[];
+}
 
-function stripIndent(code: string, width: number): string {
-  return code
-    .split("\n")
-    .map((line) => {
-      let cut = 0;
-      while (cut < width && (line[cut] === " " || line[cut] === "\t")) {
-        cut++;
-      }
-      return line.slice(cut);
-    })
-    .join("\n");
+const FENCE_LINE = /^([ \t]*)(`{3,}|~{3,})(.*)$/;
+
+function openFence(line: string): OpenFence | null {
+  const match = FENCE_LINE.exec(line);
+  if (!match) {
+    return null;
+  }
+  const [, indent, marker, info] = match;
+
+  if (marker[0] === "`" && info.includes("`")) {
+    return null;
+  }
+  return {
+    marker,
+    indent: indent.length,
+    language: info.trim().split(/\s+/)[0],
+    lines: [],
+  };
+}
+
+function closesFence(line: string, fence: OpenFence): boolean {
+  const trimmed = line.trim();
+  return (
+    trimmed.length >= fence.marker.length &&
+    trimmed === fence.marker[0].repeat(trimmed.length)
+  );
+}
+
+function stripIndent(line: string, width: number): string {
+  let cut = 0;
+  while (cut < width && (line[cut] === " " || line[cut] === "\t")) {
+    cut++;
+  }
+  return line.slice(cut);
 }
 
 export function splitMessage(text: string): MessagePiece[] {
   const pieces: MessagePiece[] = [];
-  let lastIndex = 0;
+  const lines = text.split(/\r?\n/);
+  let textLines: string[] = [];
+  let fence: OpenFence | null = null;
 
-  const pushText = (raw: string) => {
-    const content = raw.trim();
+  const flushText = () => {
+    const content = textLines.join("\n").trim();
     if (content) {
       pieces.push({ kind: "text", content });
     }
+
+
+    textLines = [];
   };
 
-  for (const match of text.matchAll(CODE_FENCE)) {
-    const [block, indent, language, body] = match;
-    const start = match.index ?? 0;
-    pushText(text.slice(lastIndex, start));
+  const flushCode = (open: OpenFence) => {
     pieces.push({
       kind: "code",
-      content: stripIndent(body, indent.length).trimEnd(),
-      language,
-    });
-    lastIndex = start + block.length;
-  }
+      content: open.lines.join("\n").trimEnd(),
 
-  pushText(text.slice(lastIndex));
+      language: open.language,
+    });
+
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (fence) {
+      if (closesFence(line, fence)) {
+        flushCode(fence);
+
+        fence = null;
+      } else {
+        fence.lines.push(stripIndent(line, fence.indent));
+      }
+
+      continue;
+    }
+
+    const opened = i < lines.length - 1 ? openFence(line) : null;
+
+    if (opened) {
+
+      flushText();
+      fence = opened;
+
+    } else {
+      textLines.push(line);
+    }
+  }
+  if (fence) {
+    flushCode(fence);
+  }
+  flushText();
   return pieces;
 }
