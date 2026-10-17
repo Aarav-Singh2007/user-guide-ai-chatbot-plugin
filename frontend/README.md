@@ -24,7 +24,7 @@ VITE_DUMMY_JWT_KEY=<token>
 
 The trailing slash in `VITE_DEV_API_URL` is required because the app appends request paths such as `chats` directly to it.
 
-Install the dependencies and start the development server:
+Install the dependencies and then start the development server:
 
 ```shell
 cd ../frontend
