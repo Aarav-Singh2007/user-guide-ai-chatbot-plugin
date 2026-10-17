@@ -49,5 +49,4 @@ You don't need to run it yourself when working on the whole plugin: `mvn clean h
 
 ## Contributing
 
-
 Refer to our [contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md).
