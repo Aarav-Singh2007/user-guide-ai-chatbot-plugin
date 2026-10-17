@@ -10,7 +10,7 @@ Prerequisites: _Node.js_ (`^20.19.0 || ^22.13.0 || >=24`) and a backend running 
 
 The backend only accepts requests that carry a JWT signed with its `JWT_SECRET_KEY`. The command below requires [uv](https://docs.astral.sh/uv/getting-started/installation/); install it first if it is not already available. To generate a token for development, run this from the repository root:
 
-```sh
+```shell
 cd backend
 uv run python -c "import os; from dotenv import load_dotenv; from jose import jwt; load_dotenv(); print(jwt.encode({'sub': 'dev-user'}, os.environ['JWT_SECRET_KEY'], algorithm='HS256'))"
 ```
