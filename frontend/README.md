@@ -17,7 +17,7 @@ uv run python -c "import os; from dotenv import load_dotenv; from jose import jw
 
 Create `frontend/.env.local` with the token (the file is git-ignored):
 
-```sh
+```shell
 VITE_DEV_API_URL=http://localhost:8000/
 VITE_DUMMY_JWT_KEY=<token>
 ```
