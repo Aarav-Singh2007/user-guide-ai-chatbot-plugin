@@ -8,7 +8,7 @@ Inside Jenkins, the UI doesn't call the backend directly. Every request goes thr
 
 Prerequisites: _Node.js_ (`^20.19.0 || >=22.12.0`) and a backend running on `http://localhost:8000` (see the [Development Guide](https://jenkinsci.github.io/user-guide-ai-chatbot-plugin/developer-docs/developing.html)).
 
-The backend only accepts requests that carry a JWT signed with its `JWT_SECRET_KEY`. To generate one for development, run this from the repository root:
+The backend only accepts requests that carry a JWT signed with its `JWT_SECRET_KEY`. The command below requires [uv](https://docs.astral.sh/uv/getting-started/installation/); install it first if it is not already available. To generate a token for development, run this from the repository root:
 
 ```sh
 cd backend
@@ -27,7 +27,7 @@ The trailing slash in `VITE_DEV_API_URL` is required because the app appends req
 Install the dependencies and start the development server:
 
 ```sh
-cd frontend
+cd ../frontend
 npm install
 npm run dev
 ```
