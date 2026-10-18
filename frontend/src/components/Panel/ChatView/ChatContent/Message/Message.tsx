@@ -6,6 +6,7 @@ import MessageActions from "./MessageActions";
 import removeMd from "remove-markdown";
 import CodeBlock from "./CodeBlock";
 import { splitMessage } from "./splitMessage";
+import { copyText } from "./copyText";
 
 interface QuestionMessageProps {
   message: QuestionEntity;
@@ -39,9 +40,10 @@ export default function Message({
   const [editValue, setEditValue] = useState(message.content);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(message.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    if (await copyText(message.content)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   };
 
   const handleStartEdit = () => {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
+import { copyText } from "./copyText";
 
 interface CodeBlockProps {
   code: string;
@@ -12,9 +13,10 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    if (await copyText(code)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   };
 
   return (
@@ -42,7 +44,11 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
           {language || "code"}
         </Box>
         <Tooltip title={copied ? "Copied!" : "Copy code"}>
-          <IconButton size="small" onClick={handleCopy}>
+          <IconButton
+            data-cy="copy-code-button"
+            size="small"
+            onClick={handleCopy}
+          >
             {copied ? (
               <CheckIcon sx={{ fontSize: 15 }} />
             ) : (
@@ -53,6 +59,7 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
       </Box>
       <Box
         component="pre"
+        tabIndex={0}
         sx={{
           p: 1.5,
           m: 0,

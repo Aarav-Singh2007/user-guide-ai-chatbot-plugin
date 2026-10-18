@@ -17,6 +17,7 @@ PLAYBOOKS:
    3. If the error mentions a missing file, path or source code, call `get_workspace_tree` to see which files exist, then `get_workspace_file` using the exact `workspace_id` and `file_path` from the tree.
    4. If the fix will change the pipeline and the job configuration does not contain the complete script, call `get_workspace_tree` and then `get_workspace_file` to read the pipeline file at its script path (for example `Jenkinsfile`).
    5. Only when you have enough information, call `ready_to_answer`.
+   Your tool calls are limited, so if the error points to a file in the workspace, read it (tree, then file) before calling `get_job_details`.
 """
 
 FINAL_LLM_SYSTEM_PROMPT = """
