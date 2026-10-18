@@ -33,7 +33,9 @@ function openFence(line: string): OpenFence | null {
 
 function closesFence(line: string, fence: OpenFence): boolean {
   const trimmed = line.trim();
+  const indent = line.length - line.trimStart().length;
   return (
+    indent <= fence.indent + 3 &&
     trimmed.length >= fence.marker.length &&
     trimmed === fence.marker[0].repeat(trimmed.length)
   );
