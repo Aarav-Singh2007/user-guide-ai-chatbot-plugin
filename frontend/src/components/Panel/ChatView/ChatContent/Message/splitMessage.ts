@@ -11,7 +11,7 @@ interface OpenFence {
   lines: string[];
 }
 
-const FENCE_LINE = /^([ \t]*)(`{3,}|~{3,})(.*)$/;
+const FENCE_LINE = /^([ \t]*(?:(?:[-*+]|\d{1,9}[.)])[ \t]+)?)(`{3,}|~{3,})(.*)$/;
 
 function openFence(line: string): OpenFence | null {
   const match = FENCE_LINE.exec(line);
@@ -92,7 +92,10 @@ export function splitMessage(text: string): MessagePiece[] {
     const opened = i < lines.length - 1 ? openFence(line) : null;
 
     if (opened) {
-
+      const listMarker = line.slice(0, opened.indent).trim();
+      if (listMarker) {
+        textLines.push(listMarker);
+      }
       flushText();
       fence = opened;
 
