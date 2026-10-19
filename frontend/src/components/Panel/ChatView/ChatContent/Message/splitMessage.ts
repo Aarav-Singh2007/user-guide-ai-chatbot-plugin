@@ -60,8 +60,6 @@ export function splitMessage(text: string): MessagePiece[] {
     if (content) {
       pieces.push({ kind: "text", content });
     }
-
-
     textLines = [];
   };
 
@@ -69,10 +67,8 @@ export function splitMessage(text: string): MessagePiece[] {
     pieces.push({
       kind: "code",
       content: open.lines.join("\n").trimEnd(),
-
       language: open.language,
     });
-
   };
 
   for (let i = 0; i < lines.length; i++) {
@@ -80,12 +76,10 @@ export function splitMessage(text: string): MessagePiece[] {
     if (fence) {
       if (closesFence(line, fence)) {
         flushCode(fence);
-
         fence = null;
       } else {
         fence.lines.push(stripIndent(line, fence.indent));
       }
-
       continue;
     }
 
@@ -96,10 +90,8 @@ export function splitMessage(text: string): MessagePiece[] {
       if (listMarker) {
         textLines.push(listMarker);
       }
-
       flushText();
       fence = opened;
-
     } else {
       textLines.push(line);
     }
