@@ -96,6 +96,7 @@ export function splitMessage(text: string): MessagePiece[] {
       if (listMarker) {
         textLines.push(listMarker);
       }
+
       flushText();
       fence = opened;
 
