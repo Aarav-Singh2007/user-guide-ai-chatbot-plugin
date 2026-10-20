@@ -7,13 +7,27 @@ export interface MessagePiece {
 interface OpenFence {
   marker: string;
   indent: number;
+  quote: number;
   language: string;
   lines: string[];
 }
 
+const QUOTE_MARKER = /^[ \t]{0,3}>[ \t]?/;
 const FENCE_LINE = /^([ \t]*(?:(?:[-*+]|\d{1,9}[.)])[ \t]+)?)(`{3,}|~{3,})(.*)$/;
 
+function stripQuote(line: string, depth: number): string {
+  for (let n = 0; n < depth; n++) {
+    line = line.replace(QUOTE_MARKER, "");
+  }
+  return line;
+}
+
 function openFence(line: string): OpenFence | null {
+  let quote = 0;
+  while (QUOTE_MARKER.test(line)) {
+    line = line.replace(QUOTE_MARKER, "");
+    quote++;
+  }
   const match = FENCE_LINE.exec(line);
   if (!match) {
     return null;
@@ -26,6 +40,7 @@ function openFence(line: string): OpenFence | null {
   return {
     marker,
     indent: indent.length,
+    quote,
     language: info.trim().split(/\s+/)[0],
     lines: [],
   };
@@ -66,7 +81,7 @@ export function splitMessage(text: string): MessagePiece[] {
   const flushCode = (open: OpenFence) => {
     pieces.push({
       kind: "code",
-      content: open.lines.join("\n").trimEnd(),
+      content: open.lines.join("\n"),
       language: open.language,
     });
   };
@@ -74,11 +89,12 @@ export function splitMessage(text: string): MessagePiece[] {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (fence) {
-      if (closesFence(line, fence)) {
+      const inner = stripQuote(line, fence.quote);
+      if (closesFence(inner, fence)) {
         flushCode(fence);
         fence = null;
       } else {
-        fence.lines.push(stripIndent(line, fence.indent));
+        fence.lines.push(stripIndent(inner, fence.indent));
       }
       continue;
     }
@@ -86,7 +102,9 @@ export function splitMessage(text: string): MessagePiece[] {
     const opened = i < lines.length - 1 ? openFence(line) : null;
 
     if (opened) {
-      const listMarker = line.slice(0, opened.indent).trim();
+      const listMarker = stripQuote(line, opened.quote)
+        .slice(0, opened.indent)
+        .trim();
       if (listMarker) {
         textLines.push(listMarker);
       }
